@@ -7,11 +7,12 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "fastify": "^4.15.0",
-    "handlebars": "^4.7.7",
-    "@fastify/view": "^7.4.1",
+    "@fastify/formbody": "^7.4.0",
     "@fastify/static": "^6.9.0",
-    "@fastify/formbody": "^7.4.0"
+    "@fastify/view": "^7.4.1",
+    "@slack/bolt": "^3.13.0",
+    "fastify": "^4.15.0",
+    "handlebars": "^4.7.7"
   },
   "engines": {
     "node": "14.x"
