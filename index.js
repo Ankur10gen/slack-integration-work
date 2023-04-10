@@ -2,17 +2,13 @@ const { App } = require("@slack/bolt");
 const { writeToDB, findFromDB, searchDB } = require("./db");
 require("dotenv").config();
 
+// Slack App Secrets
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   token: process.env.SLACK_BOT_TOKEN,
 });
 
-/* Add functionality here */
-app.message(":wave:", async ({ message, say }) => {
-  await say(`Hello, <@${message.user}>`);
-});
-
-// Listen for users opening your App Home
+// Listen for users opening the App Home
 app.event("app_home_opened", async ({ event, client, logger }) => {
   try {
     // Call views.publish with the built-in client
@@ -78,13 +74,12 @@ app.event("app_home_opened", async ({ event, client, logger }) => {
     });
 
     logger.info(result);
-    //console.log(await client.users.info({user:event.user}))
   } catch (error) {
     logger.error(error);
   }
 });
 
-// Your listener function will be called every time an interactive component with the action_id "approve_button" is triggered
+// Listener function for button press - Uses action id for the button
 app.action("actionId-0", async ({ body, client, ack }) => {
   await ack();
   console.log("Button was pressed");
@@ -107,10 +102,10 @@ app.action("actionId-0", async ({ body, client, ack }) => {
     },
   });
 
+  // Database call to write the data 
   writeToDB(data);
 
   const result = await client.views.update({
-    // Use the user ID associated with the event
     view_id: body.view.id,
     view: {
       type: "home",
@@ -128,11 +123,10 @@ app.action("actionId-0", async ({ body, client, ack }) => {
   });
 });
 
+// Command /readinglist gets the data for a specified user
+// If no user is specified, then the data for the user invoking the command is received
 app.command("/readinglist", async ({ command, ack, respond }) => {
-  // Acknowledge command request
   await ack();
-
-  //await respond(JSON.stringify(command.text));
 
   var data = {
     collection: "activity",
@@ -144,10 +138,12 @@ app.command("/readinglist", async ({ command, ack, respond }) => {
 
   console.log("text: ", text);
 
+  // If no username then return data for the user calling the command
   if (text == "") {
     text = command.user_name;
   }
 
+  // If username is tagged, it is expected with @
   if (text.charAt(0) == "@") {
     text = text.slice(1);
   }
@@ -164,11 +160,15 @@ app.command("/readinglist", async ({ command, ack, respond }) => {
     ],
   };
 
+  // Filter the data for the username
   data["filter"] = { username: text };
   const res = await findFromDB(JSON.stringify(data));
+
+  // Parse the query result into JSON to iterate over the documents
   const parseRes = JSON.parse(res)["documents"];
   console.log(parseRes[0], parseRes.length);
   try {
+    // Limiting results to 20 for demo
     for (var i = 0; i < 20; i++) {
       try {
         let bmsg = {
@@ -198,13 +198,16 @@ app.command("/readinglist", async ({ command, ack, respond }) => {
   respond(beautifulMsgs);
 });
 
-// Search on Reading List
+// Command to search on the Reading List with a keyword
 app.command("/readinglistsearch", async ({ command, ack, respond }) => {
-  // Acknowledge command request
   await ack();
 
   let text = command.text;
+
+  // Call the search endpoint
   const res = await searchDB(JSON.stringify(text));
+
+  // Parse the result into JSON and iterate through it for display
   const parseRes = JSON.parse(res);
   let beautifulMsgs = {
     blocks: [

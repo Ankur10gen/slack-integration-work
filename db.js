@@ -1,4 +1,9 @@
+// This module interfaces with the backend database 
 var axios = require("axios");
+require("dotenv").config();
+
+// DB API key
+const AtlasApiKey = process.env.ATLAS_API_KEY
 
 var config = {
   method: "post",
@@ -7,10 +12,11 @@ var config = {
     "Content-Type": "application/json",
     "Access-Control-Request-Headers": "*",
     "api-key":
-      "ZhmFkYB3hmmqiUQcrg2V5AbGLZ1KoV5VDP36XGyaGItlWsCukgkW9a4zBKaOaoOr",
+      AtlasApiKey,
   },
 };
 
+// Write the data to Atlas cluster
 function writeToDB(data) {
   config["data"] = data;
   axios(config)
@@ -22,6 +28,7 @@ function writeToDB(data) {
     });
 }
 
+// Find the data from Atlas
 async function findFromDB(data) {
   const customPromise = new Promise((resolve, reject) => {
     config["data"] = data;
@@ -44,6 +51,7 @@ async function findFromDB(data) {
   return customPromise;
 }
 
+// Search the data on Atlas
 async function searchDB(searchString) {
   const customPromise = new Promise((resolve, reject) => {
     let cfg = {
