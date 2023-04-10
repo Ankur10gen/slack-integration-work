@@ -102,7 +102,7 @@ app.action("actionId-0", async ({ body, client, ack }) => {
     },
   });
 
-  // Database call to write the data 
+  // Database call to write the data
   writeToDB(data);
 
   const result = await client.views.update({

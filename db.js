@@ -1,9 +1,9 @@
-// This module interfaces with the backend database 
+// This module interfaces with the backend database
 var axios = require("axios");
 require("dotenv").config();
 
 // DB API key
-const AtlasApiKey = process.env.ATLAS_API_KEY
+const AtlasApiKey = process.env.ATLAS_API_KEY;
 
 var config = {
   method: "post",
@@ -11,8 +11,7 @@ var config = {
   headers: {
     "Content-Type": "application/json",
     "Access-Control-Request-Headers": "*",
-    "api-key":
-      AtlasApiKey,
+    "api-key": AtlasApiKey,
   },
 };
 
