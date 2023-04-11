@@ -105,7 +105,7 @@ app.action("actionId-0", async ({ body, client, ack }) => {
   // Database call to write the data
   writeToDB(data);
 
-  // Update view with success x
+  // Update view with success message
   const result = await client.views.update({
     view_id: body.view.id,
     view: {
