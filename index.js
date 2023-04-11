@@ -105,6 +105,7 @@ app.action("actionId-0", async ({ body, client, ack }) => {
   // Database call to write the data
   writeToDB(data);
 
+  // Update view with success x
   const result = await client.views.update({
     view_id: body.view.id,
     view: {
@@ -154,7 +155,7 @@ app.command("/readinglist", async ({ command, ack, respond }) => {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: "*These articles may be relevant to* _" + text + "_ .",
+          text: "*Here are a few articles shared by* _" + text + "_ .",
         },
       },
     ],
@@ -167,6 +168,20 @@ app.command("/readinglist", async ({ command, ack, respond }) => {
   // Parse the query result into JSON to iterate over the documents
   const parseRes = JSON.parse(res)["documents"];
   console.log(parseRes[0], parseRes.length);
+  if (parseRes.length == 0) {
+    respond({
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: "*Sorry!* " + text + " *hasn't shared anything yet. Let them know about KnowledgeCorner.*",
+          },
+        },
+      ],
+    });
+    return;
+  }
   try {
     // Limiting results to 20 for demo
     for (var i = 0; i < 20; i++) {
@@ -209,6 +224,26 @@ app.command("/readinglistsearch", async ({ command, ack, respond }) => {
 
   // Parse the result into JSON and iterate through it for display
   const parseRes = JSON.parse(res);
+
+  // Return if no articles were found
+  if (parseRes.length == 0) {
+    respond({
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text:
+              "*Hmnn! looks like we don't have anything related to " +
+              text +
+              " yet. Be the first one to share something in this area. Check KnowledgeCorner > Home.*",
+          },
+        },
+      ],
+    });
+    return;
+  }
+
   let beautifulMsgs = {
     blocks: [
       {
